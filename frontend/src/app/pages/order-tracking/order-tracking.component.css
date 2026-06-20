@@ -1,0 +1,32 @@
+/* Order tracking page styles */
+.order-tracking-page {
+  padding: 2rem 0;
+}
+.tracking-card {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+.tracking-form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.tracking-form input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+.tracking-message {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+.tracking-details p {
+  margin: 0.5rem 0;
+}

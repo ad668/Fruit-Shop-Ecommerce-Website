@@ -1,0 +1,133 @@
+<section class="admin-add-shell">
+  <div class="admin-card admin-panel">
+    <div class="admin-tabs">
+      <button type="button" class="tab-button" [class.active]="selectedTab === 'fruits'" (click)="switchTab('fruits')">
+        Manage Fruits
+      </button>
+      <button type="button" class="tab-button" [class.active]="selectedTab === 'orders'" (click)="switchTab('orders')">
+        Orders
+      </button>
+    </div>
+
+    <div *ngIf="selectedTab === 'fruits'">
+      <h2>{{ title }}</h2>
+      <form (ngSubmit)="submit()">
+        <label>Name</label>
+        <input type="text" [(ngModel)]="fruit.name" name="name" required />
+
+        <label>Description</label>
+        <textarea [(ngModel)]="fruit.description" name="description" rows="4" required></textarea>
+
+        <label>Category</label>
+        <select [(ngModel)]="fruit.category" name="category" required>
+          <option value="Fruits">Fruits</option>
+          <option value="Vegetables">Vegetables</option>
+          <option value="Juice">Juice</option>
+          <option value="Others">Others</option>
+        </select>
+
+        <label>Price</label>
+        <input type="number" [(ngModel)]="fruit.price" name="price" min="0" required />
+
+        <label>Discount Price</label>
+        <input type="number" [(ngModel)]="fruit.discountPrice" name="discountPrice" min="0" />
+
+        <label>Price Unit</label>
+        <select [(ngModel)]="fruit.priceUnit" name="priceUnit" required>
+          <option value="KG">KG</option>
+          <option value="Dozen">Dozen</option>
+          <option value="Piece">Piece</option>
+          <option value="Litre">Litre</option>
+        </select>
+
+        <label>Stock</label>
+        <input type="number" [(ngModel)]="fruit.stock" name="stock" min="0" required />
+
+        <label>Image URL</label>
+        <input type="url" [(ngModel)]="fruit.imageUrl" name="imageUrl" />
+        
+        <label>Upload Image</label>
+        <input type="file" accept="image/*" (change)="onFileSelected($event)"/>
+        <div *ngIf="imagePreview" class="preview-wrap"> 
+          <img [src]="imagePreview" alt="Preview" />
+        </div>
+
+        <label>Status</label>
+        <select [(ngModel)]="fruit.status" name="status" required>
+          <option value="Available">Available</option>
+          <option value="Unavailable">Unavailable</option>
+          <option value="Coming Soon">Coming Soon</option>
+        </select>
+
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="fruit.isFeatured" name="isFeatured" />
+          Featured fruit
+        </label>
+
+        <button type="submit" class="btn btn-primary">{{ submitLabel }}</button>
+      </form>
+
+      <div *ngIf="message" class="message" [ngClass]="messageType">
+        {{ message }}
+      </div>
+    </div>
+
+    <div *ngIf="selectedTab === 'orders'" class="orders-tab">
+      <h2>Order Management</h2>
+      <div class="orders-toolbar">
+        <input
+          type="text"
+          placeholder="Search by tracking number"
+          [(ngModel)]="searchTracking"
+          (input)="applySearch()"
+        />
+      </div>
+
+      <div *ngIf="adminMessage" class="message" [ngClass]="adminMessageType">
+        {{ adminMessage }}
+      </div>
+
+      <div *ngIf="filteredOrders.length === 0" class="empty-state">
+        No orders found for this tracking number.
+      </div>
+
+      <div *ngIf="filteredOrders.length > 0" class="orders-table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tracking</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Tracking Status</th>
+              <th>Total</th>
+              <th>Placed</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of filteredOrders">
+              <td>{{ order.id }}</td>
+              <td>{{ order.trackingNumber }}</td>
+              <td>{{ order.customerEmail || 'N/A' }}</td>
+              <td>{{ order.status }}</td>
+              <td>{{ order.trackingStatus }}</td>
+              <td>₹{{ order.total | number:'1.2-2' }}</td>
+              <td>{{ formatDate(order.createdAt) }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  [disabled]="order.status === 'Shipped' || order.trackingStatus === 'Shipped'"
+                  (click)="confirmOrder(order)"
+                >
+                  {{ order.status === 'Shipped' || order.trackingStatus === 'Shipped' ? 'Shipped' : 'Confirm' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

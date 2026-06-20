@@ -1,0 +1,29 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="container header-grid">
+      <div class="brand">
+        <a routerLink="/">Fruitly</a>
+      </div>
+      <nav class="nav-links">
+        <a routerLink="/">Home</a>
+        <a routerLink="/products">Shop</a>
+        <a routerLink="/cart">Cart</a>
+        <a routerLink="/tracking">Track Order</a>
+        <a *ngIf="auth.isLoggedIn() && !auth.isAdmin() && !auth.isDeliveryPartner()" routerLink="/contact">Contact Us</a>
+        <a *ngIf="auth.isAdmin()" routerLink="/admin/add-fruit">Add Fruit</a>
+        <a *ngIf="auth.isAdmin()" routerLink="/admin/manage-users">Manage Users</a>
+        <a *ngIf="auth.isDeliveryPartner()" routerLink="/delivery">Deliveries</a>
+        <a *ngIf="!auth.isLoggedIn()" routerLink="/auth">Login</a>
+        <button *ngIf="auth.isLoggedIn()" class="logout-button" (click)="logout()">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 Fruitly. Professional fruit shopping experience.  @aditya kumar</div>
+  </footer>
+</div>

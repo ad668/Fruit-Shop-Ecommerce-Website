@@ -1,0 +1,153 @@
+<div class="delivery-container">
+  <section class="section-header">
+    <div class="page-heading">
+      <p>Delivery Partner</p>
+      <h2>Manage Deliveries</h2>
+      <div *ngIf="message" class="toast-message" [ngClass]="messageType">{{ message }}</div>
+    </div>
+  </section>
+
+  <div class="delivery-content">
+    <div class="orders-list-section" [ngClass]="{ 'with-detail': selectedOrder }">
+      <div class="orders-header">
+        <h3>Orders for Delivery ({{ orders.length }})</h3>
+        <button class="btn-refresh" (click)="loadDeliveryOrders()" [disabled]="loading">
+          🔄 Refresh
+        </button>
+      </div>
+
+      <div *ngIf="loading && orders.length === 0" class="loading-message">
+        <p>Loading delivery orders...</p>
+      </div>
+
+      <div *ngIf="!loading && orders.length === 0" class="no-orders-message">
+        <p>No orders out for delivery at the moment.</p>
+      </div>
+
+      <div class="orders-list">
+        <div
+          *ngFor="let order of orders"
+          class="order-card"
+          [class.active]="selectedOrder?.id === order.id"
+          (click)="selectOrder(order)"
+        >
+          <div class="order-header">
+            <span class="order-id">Order #{{ order.id }}</span>
+            <span class="status-badge">{{ order.status }}</span>
+          </div>
+          <div class="order-info">
+            <p><strong>Customer Name:</strong> {{ order.customerName }}</p>
+            <p><strong>Customer Email:</strong> {{ order.customerEmail }}</p>
+            <p><strong>Address:</strong> {{ order.shippingAddress }}</p>
+            <p><strong>Total:</strong> ₹{{ order.total | number:'1.2-2' }}</p>
+            <p><strong>Tracking:</strong> {{ order.trackingNumber }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-detail-section" *ngIf="selectedOrder">
+      <div class="detail-header">
+        <h3>Order Details</h3>
+        <button class="btn-close" (click)="deselectOrder()">✕</button>
+      </div>
+
+      <div class="detail-content">
+        <div class="detail-section">
+          <h4>Order Information</h4>
+          <div class="detail-row">
+            <span class="label">Order ID:</span>
+            <span class="value">#{{ selectedOrder.id }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Status:</span>
+            <span class="value status">{{ selectedOrder.status }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Customer Name:</span>
+            <span class="value">{{ selectedOrder.customerName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Customer Email:</span>
+            <span class="value">{{ selectedOrder.customerEmail }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Tracking Number:</span>
+            <span class="value">{{ selectedOrder.trackingNumber }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>Delivery Address</h4>
+          <div class="address-box">
+            {{ selectedOrder.shippingAddress }}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>Order Items</h4>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Fruit</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of selectedOrder.items">
+                <td>{{ item.fruitName }}</td>
+                <td>{{ item.quantity | number:'1.0-2' }}</td>
+                <td>₹{{ item.unitPrice | number:'1.2-2' }}</td>
+                <td>₹{{ (item.quantity * item.unitPrice) | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="items-total">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>₹{{ selectedOrder.subtotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="total-row">
+              <span>Tax:</span>
+              <span>₹{{ selectedOrder.tax | number:'1.2-2' }}</span>
+            </div>
+            <div class="total-row">
+              <span>Shipping Charge:</span>
+              <span>₹{{ selectedOrder.shippingCharge | number:'1.2-2' }}</span>
+            </div>
+            <div class="total-row final">
+              <strong>Total:</strong>
+              <strong>₹{{ selectedOrder.total | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>Verify Delivery</h4>
+          <div class="otp-input-group">
+            <label for="otp">Enter 4-digit OTP:</label>
+            <input
+              id="otp"
+              type="text"
+              class="otp-input"
+              maxlength="4"
+              placeholder="0000"
+              [(ngModel)]="otpInput"
+              (keyup.enter)="confirmDelivery()"
+              [disabled]="loading"
+            />
+          </div>
+          <button
+            class="btn btn-deliver"
+            (click)="confirmDelivery()"
+            [disabled]="loading || !otpInput || otpInput.length !== 4"
+          >
+            {{ loading ? 'Confirming...' : 'Confirm Delivery' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

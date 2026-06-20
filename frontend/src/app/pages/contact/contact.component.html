@@ -1,0 +1,100 @@
+<div class="contact-container">
+  <div class="contact-card">
+    <h1>Contact Us</h1>
+    <p class="intro-text">Have a question or feedback? We'd love to hear from you. Fill out the form below and we'll get back to you as soon as possible.</p>
+
+    <form (ngSubmit)="submitContact()" class="contact-form">
+      <div class="form-group">
+        <label for="name">Name <span class="required">*</span></label>
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="contactForm.name"
+          name="name"
+          placeholder="Your full name"
+          required
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="contactForm.email"
+          name="email"
+          placeholder="your@email.com"
+          required
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          [(ngModel)]="contactForm.phone"
+          name="phone"
+          placeholder="+91 XXXXX XXXXX"
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="subject">Subject <span class="required">*</span></label>
+        <input
+          type="text"
+          id="subject"
+          [(ngModel)]="contactForm.subject"
+          name="subject"
+          placeholder="How can we help?"
+          required
+          [disabled]="isSubmitting"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="message">Message <span class="required">*</span></label>
+        <textarea
+          id="message"
+          [(ngModel)]="contactForm.message"
+          name="message"
+          placeholder="Please provide details about your inquiry..."
+          rows="6"
+          required
+          [disabled]="isSubmitting"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="isSubmitting"
+      >
+        {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+      </button>
+    </form>
+
+    <div *ngIf="message" class="message" [ngClass]="messageType">
+      {{ message }}
+    </div>
+
+    <div class="contact-info">
+      <h3>Other Ways to Reach Us</h3>
+      <div class="info-item">
+        <strong>Email:</strong> support@onlinefruitshop.com
+      </div>
+      <div class="info-item">
+        <strong>Phone:</strong> +91 1234-567-890
+      </div>
+      <div class="info-item">
+        <strong>Address:</strong> 123 Fruit Market, Fresh City, FC 12345
+      </div>
+      <div class="info-item">
+        <strong>Business Hours:</strong> Monday - Sunday, 9:00 AM - 8:00 PM
+      </div>
+    </div>
+  </div>
+</div>

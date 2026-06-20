@@ -1,0 +1,133 @@
+<div class="admin-container">
+  <section class="section-header">
+    <div class="page-heading">
+      <p>Admin Panel</p>
+      <h2>Manage Users</h2>
+      <div *ngIf="message" class="toast-message" [ngClass]="messageType">{{ message }}</div>
+    </div>
+  </section>
+
+  <div class="manage-users-content">
+    <div class="role-selector">
+      <h3>Select User Type to Register</h3>
+      <div class="role-buttons">
+        <button
+          class="role-btn"
+          [class.active]="selectedRole === 'DeliveryPartner'"
+          (click)="onRoleChange('DeliveryPartner')"
+        >
+          <span class="role-icon">🚚</span>
+          <span class="role-name">Delivery Partner</span>
+        </button>
+        <button
+          class="role-btn"
+          [class.active]="selectedRole === 'Admin'"
+          (click)="onRoleChange('Admin')"
+        >
+          <span class="role-icon">👤</span>
+          <span class="role-name">Admin User</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-card">
+        <h3 *ngIf="selectedRole === 'DeliveryPartner'" class="form-title">
+          Register New Delivery Partner
+        </h3>
+        <h3 *ngIf="selectedRole === 'Admin'" class="form-title">
+          Register New Admin User
+        </h3>
+
+        <form (ngSubmit)="submitForm()" #userForm="ngForm" class="admin-form">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input
+              id="name"
+              type="text"
+              class="form-input"
+              placeholder="Enter full name"
+              [(ngModel)]="formData.name"
+              name="name"
+              [class.error]="formSubmitted && !formData.name.trim()"
+            />
+            <span *ngIf="formSubmitted && !formData.name.trim()" class="error-text">Name is required</span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input
+              id="email"
+              type="email"
+              class="form-input"
+              placeholder="Enter email address"
+              [(ngModel)]="formData.email"
+              name="email"
+              [class.error]="formSubmitted && (!formData.email.trim() || !isValidEmail(formData.email))"
+            />
+            <span *ngIf="formSubmitted && !formData.email.trim()" class="error-text">Email is required</span>
+            <span *ngIf="formSubmitted && formData.email.trim() && !isValidEmail(formData.email)" class="error-text">
+              Please enter a valid email
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input
+              id="password"
+              type="password"
+              class="form-input"
+              placeholder="Enter password (min 6 characters)"
+              [(ngModel)]="formData.password"
+              name="password"
+              [class.error]="formSubmitted && (!formData.password || formData.password.length < 6)"
+            />
+            <span *ngIf="formSubmitted && !formData.password" class="error-text">Password is required</span>
+            <span *ngIf="formSubmitted && formData.password && formData.password.length < 6" class="error-text">
+              Password must be at least 6 characters
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="role">User Role *</label>
+            <select
+              id="role"
+              class="form-input"
+              [(ngModel)]="formData.role"
+              name="role"
+              disabled
+            >
+              <option value="DeliveryPartner">Delivery Partner</option>
+              <option value="Admin">Admin User</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              {{ loading ? 'Registering...' : 'Register' }} {{ selectedRole === 'DeliveryPartner' ? 'Delivery Partner' : 'Admin' }}
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="loading">
+              Clear
+            </button>
+          </div>
+        </form>
+
+        <div class="info-box" *ngIf="selectedRole === 'DeliveryPartner'">
+          <h4>Delivery Partner Credentials</h4>
+          <p>
+            After registration, the delivery partner can log in at the app and access their delivery orders dashboard.
+            They can verify OTP and confirm order deliveries.
+          </p>
+        </div>
+
+        <div class="info-box" *ngIf="selectedRole === 'Admin'">
+          <h4>Admin User Credentials</h4>
+          <p>
+            Admin users have full access to the admin panel, including managing products, orders, and confirming orders
+            for delivery.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

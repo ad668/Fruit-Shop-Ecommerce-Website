@@ -1,0 +1,49 @@
+<section *ngIf="fruit; else loading" class="detail-grid">
+  <div class="image-panel">
+    <img [src]="fruit.imageData || fruit.imageUrl || 'https://via.placeholder.com/640x480'" alt="{{ fruit.name }}" />
+  </div>
+
+  <div class="detail-copy">
+    <span class="eyebrow">{{ fruit.category }}</span>
+    <h1>{{ fruit.name }}</h1>
+    <p class="subtitle">{{ fruit.description }}</p>
+
+    <div class="price-row">
+      <span class="price">₹{{ (fruit.discountPrice || fruit.price) | number:'1.0-0' }} / {{ fruit.priceUnit }}</span>
+      <span *ngIf="fruit.discountPrice" class="old-price">₹{{ fruit.price | number:'1.0-0' }} / {{ fruit.priceUnit }}</span>
+    </div>
+
+    <div class="stock-info">{{ fruit.stock > 0 ? fruit.stock + ' ' +fruit.priceUnit+' available' : 'Out of stock' }}</div>
+
+    <div *ngIf="fruit.stock === 0" class="stock-alert">This item is currently out of stock and cannot be added to the cart.</div>
+
+    <div class="quantity-panel">
+      <button (click)="decrease()">-</button>
+      <span>{{ quantity | number:'1.0-1' }}</span>
+      <button (click)="increase()">+</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" (click)="addToCart()" [disabled]="!auth.isLoggedIn() || fruit.stock === 0">
+        {{ fruit.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
+      </button>
+      <button class="btn btn-secondary" (click)="addToCart()" [disabled]="!auth.isLoggedIn() || fruit.stock === 0">
+        {{ fruit.stock === 0 ? 'Out of Stock' : 'Buy Now' }}
+      </button>
+    </div>
+    <div *ngIf="message" class="toast-message" [ngClass]="messageType">{{ message }}</div>
+
+    <div class="nutrition-card">
+      <h3>Nutritional facts</h3>
+      <ul>
+        <li>Fiber rich</li>
+        <li>Low fat</li>
+        <li>Natural vitamins</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<ng-template #loading>
+  <section class="loading-state">Loading fruit details...</section>
+</ng-template>

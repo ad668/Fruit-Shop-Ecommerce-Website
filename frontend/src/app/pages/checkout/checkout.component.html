@@ -1,0 +1,57 @@
+<section class="checkout-page">
+  <div class="checkout-grid">
+    <div class="shipping-card">
+      <h2>Shipping details</h2>
+      <form (ngSubmit)="submit()">
+        <label>Name</label>
+        <input [(ngModel)]="shipping.name" name="name" placeholder="Full name" />
+        <label>Email</label>
+        <input [(ngModel)]="shipping.email" name="email" type="email" placeholder="Email address" />
+        <label>Address</label>
+        <input [(ngModel)]="shipping.address" name="address" placeholder="Street address" />
+        <div class="row-two">
+          <input [(ngModel)]="shipping.city" name="city" placeholder="City" />
+          <input [(ngModel)]="shipping.postalCode" name="postalCode" placeholder="Postal code" />
+        </div>
+        <label>Country</label>
+        <input [(ngModel)]="shipping.country" name="country" placeholder="Country" />
+
+        <div class="shipping-options">
+          <h3>Shipping method</h3>
+          <select [(ngModel)]="shipping.method" name="shippingMethod" (change)="updateShippingCharge()">
+            <option value="Standard">Standard Delivery (₹50)</option>
+            <option value="Express">Express Delivery (₹120)</option>
+            <option value="Next Day">Next Day Delivery (₹200)</option>
+          </select>
+        </div>
+
+        <div class="payment-options">
+          <h3>Payment method</h3>
+          <label><input type="radio" name="payment" value="card" [(ngModel)]="paymentMethod" /> Credit/Debit Card</label>
+          <label><input type="radio" name="payment" value="upi" [(ngModel)]="paymentMethod" /> UPI</label>
+          <label><input type="radio" name="payment" value="cod" [(ngModel)]="paymentMethod" /> Cash on Delivery</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirm order</button>
+      </form>
+      <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="success-message">
+        <p>{{ successMessage }}</p>
+        <p *ngIf="orderId">Order ID: {{ orderId }}</p>
+        <p *ngIf="trackingNumber">Tracking number: {{ trackingNumber }}</p>
+        <p *ngIf="trackingStatus">Status: {{ trackingStatus }}</p>
+      </div>
+    </div>
+
+    <aside class="order-summary">
+      <h3>Order summary</h3>
+      <p>Review items, apply discounts, and complete secure payment.</p>
+      <div class="summary-line"><span>Items</span><span>{{ itemCount }}</span></div>
+      <div class="summary-line"><span>Subtotal</span><span>₹{{ subtotal | number:'1.0-0' }}</span></div>
+      <div class="summary-line"><span>Shipping</span><span>₹{{ shippingCharge | number:'1.0-0' }}</span></div>
+      <div class="summary-line"><span>Tax</span><span>₹{{ tax | number:'1.0-0' }}</span></div>
+      <div class="summary-total"><span>Total</span><span>₹{{ total | number:'1.0-0' }}</span></div>
+      <p class="note">Your invoice will be generated automatically after successful payment.</p>
+    </aside>
+  </div>
+</section>

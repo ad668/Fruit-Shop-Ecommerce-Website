@@ -1,0 +1,57 @@
+<section class="section-header">
+  <div class="page-heading">
+    <p>Shop all fruits</p>
+    <h2>Fresh varieties for every taste.</h2>
+    <div *ngIf="message" class="toast-message" [ngClass]="messageType">{{ message }}</div>
+  </div>
+</section>
+
+<section class="category-filter">
+  <div class="search-bar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search fruits..."
+      [(ngModel)]="searchQuery"
+      (input)="onSearchChange()"
+    />
+  </div>
+  <div class="category-list">
+    <button
+      type="button"
+      *ngFor="let category of categories"
+      class="category-pill"
+      [class.active]="selectedCategory === category"
+      (click)="applyCategoryFilter(category)"
+    >
+      {{ category }}
+    </button>
+  </div>
+</section>
+
+<div class="product-grid">
+  <article *ngFor="let fruit of fruits" class="product-card">
+    <img [src]="fruit.imageData || fruit.imageUrl || 'https://via.placeholder.com/320x240'" alt="{{ fruit.name }}" />
+    <div class="product-card-body">
+      <h3>{{ fruit.name }}</h3>
+      <p>{{ fruit.description }}</p>
+      <div class="info-row">
+        <span class="badge">{{ fruit.category }}</span>
+        <span class="stock" [class.out-of-stock]="fruit.stock === 0">
+          {{ fruit.stock > 0 ? fruit.stock + ' '+fruit.priceUnit +' in stock' : 'Out of stock' }}
+        </span>
+      </div>
+      <div class="price-row">
+        <span class="price">₹{{ (fruit.discountPrice || fruit.price) | number:'1.0-0' }} / {{ fruit.priceUnit }}</span>
+        <span *ngIf="fruit.discountPrice" class="old-price">₹{{ fruit.price | number:'1.0-0' }} / {{ fruit.priceUnit }}</span>
+      </div>
+      <div class="actions">
+        <a routerLink="/products/{{fruit.id}}" class="btn btn-secondary">View</a>
+          <button class="btn btn-primary" (click)="addToCart(fruit)" [disabled]="!auth.isLoggedIn() || fruit.stock === 0 || getCartQuantity(fruit.id) >= fruit.stock">
+            {{ fruit.stock === 0 ? 'Out of Stock' : getCartQuantity(fruit.id) >= fruit.stock ? 'Max quantity reached' : 'Add to Cart' }}
+          </button>
+        <a *ngIf="auth.isAdmin()" [routerLink]="['/admin/edit-fruit', fruit.id]" class="btn btn-outline">Edit</a>
+      </div>
+    </div>
+  </article>
+</div>

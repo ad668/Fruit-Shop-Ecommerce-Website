@@ -1,0 +1,23 @@
+<section class="order-tracking-page">
+  <div class="tracking-card">
+    <h2>Track Your Order</h2>
+    <p>Enter your order ID to see the latest shipping status.</p>
+
+    <div class="tracking-form">
+      <input type="text" [(ngModel)]="orderId" placeholder="Order ID" />
+      <button class="btn btn-primary" (click)="trackOrder()">Track order</button>
+    </div>
+
+    <div *ngIf="message" class="tracking-message">{{ message }}</div>
+
+    <div *ngIf="trackingData" class="tracking-details">
+      <p><strong>Order ID:</strong> {{ trackingData.id }}</p>
+      <p><strong>Status:</strong> {{ trackingData.status }}</p>
+      <p><strong>Payment:</strong> {{ trackingData.paymentMethod }}</p>
+      <p><strong>Shipping method:</strong> {{ trackingData.shippingMethod }}</p>
+      <p><strong>Tracking number:</strong> {{ trackingData.trackingNumber }}</p>
+      <p><strong>Tracking status:</strong> {{ trackingData.trackingStatus }}</p>
+      <p><strong>Total:</strong> ₹{{ trackingData.total | number:'1.0-0' }}</p>
+    </div>
+  </div>
+</section>

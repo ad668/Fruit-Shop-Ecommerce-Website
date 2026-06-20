@@ -1,0 +1,36 @@
+<section class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-intro">
+      <p>Welcome back to Fruitly</p>
+      <h1>{{ mode === 'login' ? 'Sign in to your account' : 'Create your account' }}</h1>
+    </div>
+
+    <form (ngSubmit)="submit()">
+      <div *ngIf="mode === 'register'" class="field-group">
+        <label>Name</label>
+        <input [(ngModel)]="credentials.name" name="name" placeholder="Full name" />
+      </div>
+
+      <div class="field-group">
+        <label>Email</label>
+        <input [(ngModel)]="credentials.email" name="email" type="email" placeholder="you@example.com" />
+      </div>
+
+      <div class="field-group">
+        <label>Password</label>
+        <input [(ngModel)]="credentials.password" name="password" type="password" placeholder="Enter password" />
+      </div>
+
+      <button type="submit" class="btn btn-primary">{{ mode === 'login' ? 'Login' : 'Register' }}</button>
+
+      <div *ngIf="message" class="message-box" [ngClass]="messageType">
+        {{ message }}
+      </div>
+
+      <p class="auth-switch">
+        {{ mode === 'login' ? 'New here?' : 'Already have an account?' }}
+        <button type="button" class="link-button" (click)="toggleMode()">{{ mode === 'login' ? 'Create account' : 'Login' }}</button>
+      </p>
+    </form>
+  </div>
+</section>
