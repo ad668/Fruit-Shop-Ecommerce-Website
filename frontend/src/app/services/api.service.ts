@@ -6,8 +6,8 @@ import { Fruit } from '../models/fruit';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   // Use HTTPS dev API endpoint
-  // private apiUrl = 'http://localhost:5000/api';
-  private apiUrl=' https://effort-squeak-praying.ngrok-free.dev/api';
+  private apiUrl = 'http://localhost:5000/api';
+  //private apiUrl=' https://effort-squeak-praying.ngrok-free.dev/api';
 
   constructor(private http: HttpClient) {}
 
