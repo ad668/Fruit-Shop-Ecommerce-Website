@@ -87,11 +87,11 @@ using (var scope = app.Services.CreateScope())
 
     db.Database.Migrate();
 
-    const string adminEmail = "akumar93789598@gmail.com";
+    const string adminEmail = "----adminmail-----";
     var existingAdmin = db.Users.FirstOrDefault(u => u.Role == "Admin");
     if (existingAdmin == null)
     {
-        var adminPassword = "Admin123!";
+        var adminPassword = "----password--";
         var hashedPassword = authService.HashPasswordAsync(adminPassword).GetAwaiter().GetResult();
         var adminUser = new User
         {
