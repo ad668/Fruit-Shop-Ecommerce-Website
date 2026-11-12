@@ -33,7 +33,7 @@ export class AdminAddFruitComponent implements OnInit {
   message = '';
   messageType: 'success' | 'error' | '' = '';
 
-  selectedTab: 'fruits' | 'orders' = 'orders';
+  selectedTab: 'fruits' | 'orders' | 'outForDelivery' | 'delivered' = 'orders';
   orders: any[] = [];
   filteredOrders: any[] = [];
   searchTracking = '';
@@ -155,11 +155,11 @@ export class AdminAddFruitComponent implements OnInit {
     }
   }
 
-  switchTab(tab: 'fruits' | 'orders'): void {
+  switchTab(tab: 'fruits' | 'orders' | 'outForDelivery' | 'delivered'): void {
     this.selectedTab = tab;
     this.adminMessage = '';
     this.adminMessageType = '';
-    if (tab === 'orders') {
+    if (tab !== 'fruits') {
       this.loadOrders();
     }
   }
@@ -184,13 +184,21 @@ export class AdminAddFruitComponent implements OnInit {
     );
   }
 
+  get outForDeliveryOrders(): any[] {
+    return this.filteredOrders.filter(order => order.status === 'Out for Delivery');
+  }
+
+  get deliveredOrders(): any[] {
+    return this.filteredOrders.filter(order => order.status === 'Delivered');
+  }
+
   confirmOrder(order: any): void {
     this.api.confirmOrder(order.id).subscribe({
       next: (response: any) => {
         this.adminMessageType = 'success';
         this.adminMessage = response.message || 'Order confirmed as shipped.';
-        order.status = 'Shipped';
-        order.trackingStatus = 'Shipped';
+        order.status = 'Out for Delivery';
+        order.trackingStatus = 'Out for Delivery';
       },
       error: (error) => {
         this.adminMessageType = 'error';

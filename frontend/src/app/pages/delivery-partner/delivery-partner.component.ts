@@ -7,6 +7,10 @@ interface DeliveryOrder {
   userId: number;
   customerName: string;
   customerEmail: string;
+  deliveryPartnerUserId: number | null;
+  deliveryPartnerName: string | null;
+  isAssignedToCurrentPartner: boolean;
+  shippingMobileNumber: string;
   shippingAddress: string;
   shippingMethod: string;
   paymentMethod: string;
@@ -55,6 +59,9 @@ export class DeliveryPartnerComponent implements OnInit {
     this.api.getDeliveryOrders().subscribe(
       (response: any) => {
         this.orders = response.data || [];
+        if (this.selectedOrder) {
+          this.selectedOrder = this.orders.find(order => order.id === this.selectedOrder?.id) || this.selectedOrder;
+        }
         this.loading = false;
       },
       (error) => {
@@ -74,6 +81,27 @@ export class DeliveryPartnerComponent implements OnInit {
     this.message = '';
   }
 
+  claimOrder(order: DeliveryOrder, event: MouseEvent): void {
+    event.stopPropagation();
+    this.loading = true;
+    this.message = '';
+
+    this.api.claimDeliveryOrder(order.id).subscribe(
+      (response: any) => {
+        this.loading = false;
+        this.messageType = 'success';
+        this.message = response.message || 'You claimed this delivery.';
+        this.loadDeliveryOrders();
+      },
+      (error: any) => {
+        this.loading = false;
+        this.messageType = 'error';
+        this.message = error.error?.message || 'Could not claim this delivery. Refresh the list and try again.';
+        this.loadDeliveryOrders();
+      }
+    );
+  }
+
   deselectOrder(): void {
     this.selectedOrder = null;
     this.otpInput = '';
@@ -81,7 +109,7 @@ export class DeliveryPartnerComponent implements OnInit {
   }
 
   confirmDelivery(): void {
-    if (!this.selectedOrder) {
+    if (!this.selectedOrder || !this.selectedOrder.isAssignedToCurrentPartner) {
       return;
     }
 

@@ -4,9 +4,11 @@
       <h2>Shipping details</h2>
       <form (ngSubmit)="submit()">
         <label>Name</label>
-        <input [(ngModel)]="shipping.name" name="name" placeholder="Full name" />
+        <input [(ngModel)]="shipping.name" name="name" placeholder="Full name" maxlength="128" required />
         <label>Email</label>
-        <input [(ngModel)]="shipping.email" name="email" type="email" placeholder="Email address" />
+        <input [(ngModel)]="shipping.email" name="email" type="email" placeholder="Email address" maxlength="254" required />
+        <label>Mobile number</label>
+        <input [(ngModel)]="shipping.mobileNumber" name="mobileNumber" type="tel" placeholder="Mobile number" maxlength="32" required />
         <label>Address</label>
         <input [(ngModel)]="shipping.address" name="address" placeholder="Street address" />
         <div class="row-two">

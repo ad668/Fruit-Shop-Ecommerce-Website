@@ -7,7 +7,7 @@ export class DeliveryPartnerGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
-    if (this.auth.isLoggedIn() && this.auth.isAdminOrDeliveryPartner()) {
+    if (this.auth.isLoggedIn() && this.auth.isDeliveryPartner()) {
       return true;
     }
 

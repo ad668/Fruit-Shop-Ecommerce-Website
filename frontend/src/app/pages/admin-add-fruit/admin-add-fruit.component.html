@@ -5,7 +5,13 @@
         Manage Fruits
       </button>
       <button type="button" class="tab-button" [class.active]="selectedTab === 'orders'" (click)="switchTab('orders')">
-        Orders
+        Pending Confirmation
+      </button>
+      <button type="button" class="tab-button" [class.active]="selectedTab === 'outForDelivery'" (click)="switchTab('outForDelivery')">
+        Out for Delivery
+      </button>
+      <button type="button" class="tab-button" [class.active]="selectedTab === 'delivered'" (click)="switchTab('delivered')">
+        Delivered Orders
       </button>
     </div>
 
@@ -98,6 +104,7 @@
               <th>#</th>
               <th>Tracking</th>
               <th>Customer</th>
+              <th>Delivery partner</th>
               <th>Status</th>
               <th>Tracking Status</th>
               <th>Total</th>
@@ -107,23 +114,135 @@
           </thead>
           <tbody>
             <tr *ngFor="let order of filteredOrders">
-              <td>{{ order.id }}</td>
-              <td>{{ order.trackingNumber }}</td>
-              <td>{{ order.customerEmail || 'N/A' }}</td>
-              <td>{{ order.status }}</td>
-              <td>{{ order.trackingStatus }}</td>
-              <td>₹{{ order.total | number:'1.2-2' }}</td>
-              <td>{{ formatDate(order.createdAt) }}</td>
-              <td>
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  [disabled]="order.status === 'Shipped' || order.trackingStatus === 'Shipped'"
-                  (click)="confirmOrder(order)"
-                >
-                  {{ order.status === 'Shipped' || order.trackingStatus === 'Shipped' ? 'Shipped' : 'Confirm' }}
-                </button>
-              </td>
+              <ng-container *ngIf="order.status === 'Confirmed (Cash on Delivery)'">
+                <td>{{ order.id }}</td>
+                <td>{{ order.trackingNumber }}</td>
+                <td>
+                  {{ order.customerName || 'N/A' }}<br />
+                  {{ order.customerEmail || 'N/A' }}<br />
+                  {{ order.shippingMobileNumber || 'N/A' }}
+                </td>
+                <td>{{ order.deliveryPartnerName || 'Unassigned' }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.trackingStatus }}</td>
+                <td>₹{{ order.total | number:'1.2-2' }}</td>
+                <td>{{ formatDate(order.createdAt) }}</td>
+                <td>
+                  <button
+                    *ngIf="order.status === 'Confirmed (Cash on Delivery)' && order.trackingStatus === 'Awaiting pickup'"
+                    type="button"
+                    class="btn btn-secondary"
+                    [disabled]="order.status === 'Shipped' || order.trackingStatus === 'Shipped'"
+                    (click)="confirmOrder(order)"
+                  >
+                    Confirm Order
+                  </button>
+                  <span *ngIf="order.status === 'Out for Delivery'">
+                    {{ order.deliveryPartnerName ? 'Assigned to ' + order.deliveryPartnerName : 'Waiting for a delivery partner to claim' }}
+                  </span>
+                  <span *ngIf="order.status === 'Delivered'">Delivered</span>
+                </td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="selectedTab === 'outForDelivery'" class="orders-tab">
+      <h2>Out for Delivery</h2>
+      <div class="orders-toolbar">
+        <input
+          type="text"
+          placeholder="Search by tracking number"
+          [(ngModel)]="searchTracking"
+          (input)="applySearch()"
+        />
+      </div>
+      <div *ngIf="adminMessage" class="message" [ngClass]="adminMessageType">
+        {{ adminMessage }}
+      </div>
+      <div *ngIf="outForDeliveryOrders.length === 0" class="empty-state">
+        No orders are out for delivery.
+      </div>
+      <div *ngIf="outForDeliveryOrders.length > 0" class="orders-table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tracking</th>
+              <th>Customer</th>
+              <th>Delivery Partner</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Placed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of outForDeliveryOrders">
+                <td>{{ order.id }}</td>
+                <td>{{ order.trackingNumber }}</td>
+                <td>
+                  {{ order.customerName || 'N/A' }}<br />
+                  {{ order.customerEmail || 'N/A' }}<br />
+                  {{ order.shippingMobileNumber || 'N/A' }}
+                </td>
+                <td>{{ order.deliveryPartnerName || 'Waiting for partner to claim' }}</td>
+                <td>{{ order.shippingAddress }}</td>
+                <td>{{ order.trackingStatus }}</td>
+                <td>₹{{ order.total | number:'1.2-2' }}</td>
+                <td>{{ formatDate(order.createdAt) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="selectedTab === 'delivered'" class="orders-tab">
+      <h2>Delivered Orders</h2>
+      <div class="orders-toolbar">
+        <input
+          type="text"
+          placeholder="Search by tracking number"
+          [(ngModel)]="searchTracking"
+          (input)="applySearch()"
+        />
+      </div>
+      <div *ngIf="adminMessage" class="message" [ngClass]="adminMessageType">
+        {{ adminMessage }}
+      </div>
+      <div *ngIf="deliveredOrders.length === 0" class="empty-state">
+        No delivered orders found.
+      </div>
+      <div *ngIf="deliveredOrders.length > 0" class="orders-table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tracking</th>
+              <th>Customer</th>
+              <th>Delivery Partner</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Placed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of deliveredOrders">
+                <td>{{ order.id }}</td>
+                <td>{{ order.trackingNumber }}</td>
+                <td>
+                  {{ order.customerName || 'N/A' }}<br />
+                  {{ order.customerEmail || 'N/A' }}<br />
+                  {{ order.shippingMobileNumber || 'N/A' }}
+                </td>
+                <td>{{ order.deliveryPartnerName || 'N/A' }}</td>
+                <td>{{ order.shippingAddress }}</td>
+                <td>{{ order.trackingStatus }}</td>
+                <td>₹{{ order.total | number:'1.2-2' }}</td>
+                <td>{{ formatDate(order.createdAt) }}</td>
             </tr>
           </tbody>
         </table>

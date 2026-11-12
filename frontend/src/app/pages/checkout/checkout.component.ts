@@ -13,6 +13,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   shipping = {
     name: '',
     email: '',
+    mobileNumber: '',
     address: '',
     city: '',
     postalCode: '',
@@ -83,7 +84,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.shipping.email || !this.shipping.address || !this.shipping.city || !this.shipping.postalCode || !this.shipping.country) {
+    if (!this.shipping.name.trim() || !this.shipping.email.trim() || !this.shipping.mobileNumber.trim() ||
+        !this.shipping.address.trim() || !this.shipping.city.trim() ||
+        !this.shipping.postalCode.trim() || !this.shipping.country.trim()) {
       this.errorMessage = 'Please fill in all shipping details.';
       return;
     }
@@ -96,8 +99,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     const request = {
       userId,
+      shippingName: this.shipping.name.trim(),
+      shippingEmail: this.shipping.email.trim(),
+      shippingMobileNumber: this.shipping.mobileNumber.trim(),
       shippingAddress: `${this.shipping.address}, ${this.shipping.city}, ${this.shipping.postalCode}, ${this.shipping.country}`,
-      shippingEmail: this.shipping.email,
       shippingMethod: this.shipping.method,
       paymentMethod: this.paymentMethod,
       tax: this.tax,

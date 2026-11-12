@@ -7,7 +7,7 @@ import { Fruit } from '../models/fruit';
 export class ApiService {
   // Use HTTPS dev API endpoint
   private apiUrl = 'http://localhost:5000/api';
-  //private apiUrl=' https://effort-squeak-praying.ngrok-free.dev/api';
+  // private apiUrl=' https://effort-squeak-praying.ngrok-free.dev/api';
 
   constructor(private http: HttpClient) {}
 
@@ -53,6 +53,10 @@ export class ApiService {
 
   getDeliveryOrders(): Observable<any> {
     return this.http.get(`${this.apiUrl}/orders/delivery-orders`);
+  }
+
+  claimDeliveryOrder(orderId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/orders/${orderId}/claim-delivery`, {});
   }
 
   verifyDeliveryOTP(orderId: number, otp: string): Observable<any> {
