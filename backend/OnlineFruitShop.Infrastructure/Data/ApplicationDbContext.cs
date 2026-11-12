@@ -23,6 +23,11 @@ namespace OnlineFruitShop.Infrastructure.Data
             modelBuilder.Entity<OrderItem>().HasOne(i => i.Fruit).WithMany().HasForeignKey(i => i.FruitId);
             modelBuilder.Entity<OrderItem>().HasOne(i => i.Order).WithMany(o => o.Items).HasForeignKey(i => i.OrderId);
             modelBuilder.Entity<Invoice>().HasOne(i => i.Order).WithMany().HasForeignKey(i => i.OrderId);
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.DeliveryPartner)
+                .WithMany()
+                .HasForeignKey(o => o.DeliveryPartnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

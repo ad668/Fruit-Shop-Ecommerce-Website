@@ -155,6 +155,9 @@ namespace OnlineFruitShop.Infrastructure.Migrations
                     b.Property<string>("DeliveryOTP")
                         .HasColumnType("text");
 
+                    b.Property<int?>("DeliveryPartnerUserId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("OTPExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -171,10 +174,25 @@ namespace OnlineFruitShop.Infrastructure.Migrations
                     b.Property<decimal>("ShippingCharge")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("ShippingEmail")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
                     b.Property<string>("ShippingMethod")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ShippingMobileNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("ShippingName")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -203,6 +221,8 @@ namespace OnlineFruitShop.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeliveryPartnerUserId");
 
                     b.HasIndex("UserId");
 
@@ -287,11 +307,18 @@ namespace OnlineFruitShop.Infrastructure.Migrations
 
             modelBuilder.Entity("OnlineFruitShop.Core.Entities.Order", b =>
                 {
+                    b.HasOne("OnlineFruitShop.Core.Entities.User", "DeliveryPartner")
+                        .WithMany()
+                        .HasForeignKey("DeliveryPartnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("OnlineFruitShop.Core.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DeliveryPartner");
 
                     b.Navigation("User");
                 });

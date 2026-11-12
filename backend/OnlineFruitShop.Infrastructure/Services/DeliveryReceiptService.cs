@@ -36,7 +36,7 @@ namespace OnlineFruitShop.Infrastructure.Services
                 var labelFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.DARK_GRAY);
 
                 document.Add(new Paragraph("ORDER INFORMATION", titleFont));
-                document.Add(new Paragraph("_________________________________________________________________________________"));
+                document.Add(new Paragraph("__________________________________________________________________________"));
 
                 var infoTable = new PdfPTable(2);
                 infoTable.WidthPercentage = 100;
@@ -52,13 +52,14 @@ namespace OnlineFruitShop.Infrastructure.Services
 
                 // Customer Info Section
                 document.Add(new Paragraph("CUSTOMER DETAILS", titleFont));
-                document.Add(new Paragraph("_________________________________________________________________________________"));
+                document.Add(new Paragraph("__________________________________________________________________________"));
 
                 var customerTable = new PdfPTable(2);
                 customerTable.WidthPercentage = 100;
                 customerTable.SetWidths(new float[] { 50, 50 });
 
                 AddInfoRow(customerTable, labelFont, normalFont, "Customer Name:", customerName);
+                AddInfoRow(customerTable, labelFont, normalFont, "Mobile Number:", order.ShippingMobileNumber);
                 AddInfoRow(customerTable, labelFont, normalFont, "Shipping Address:", order.ShippingAddress);
                 AddInfoRow(customerTable, labelFont, normalFont, "Shipping Method:", order.ShippingMethod);
 
@@ -67,7 +68,7 @@ namespace OnlineFruitShop.Infrastructure.Services
 
                 // Order Items Section
                 document.Add(new Paragraph("ORDER ITEMS", titleFont));
-                document.Add(new Paragraph("_________________________________________________________________________________"));
+                document.Add(new Paragraph("__________________________________________________________________________"));
 
                 var itemsTable = new PdfPTable(4);
                 itemsTable.WidthPercentage = 100;
@@ -96,7 +97,7 @@ namespace OnlineFruitShop.Infrastructure.Services
 
                 // Price Breakdown Section
                 document.Add(new Paragraph("PRICE BREAKDOWN", titleFont));
-                document.Add(new Paragraph("_________________________________________________________________________________"));
+                document.Add(new Paragraph("__________________________________________________________________________"));
 
                 var breakdownTable = new PdfPTable(2);
                 breakdownTable.WidthPercentage = 100;

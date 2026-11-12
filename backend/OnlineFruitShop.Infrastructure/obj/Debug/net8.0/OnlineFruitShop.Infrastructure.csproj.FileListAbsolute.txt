@@ -28,3 +28,4 @@ C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Infrastructure\obj\D
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Infrastructure\obj\Debug\net8.0\refint\OnlineFruitShop.Infrastructure.dll
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Infrastructure\obj\Debug\net8.0\OnlineFruitShop.Infrastructure.pdb
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Infrastructure\obj\Debug\net8.0\ref\OnlineFruitShop.Infrastructure.dll
+C:\Users\HP\OnlineFruitShop\backend\OnlineFruitShop.Infrastructure\obj\Debug\net8.0\OnlineFruitShop.Infrastructure.sourcelink.json
