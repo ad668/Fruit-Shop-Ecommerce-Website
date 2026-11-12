@@ -1,4 +1,6 @@
 using System.Text;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -66,6 +68,9 @@ namespace OnlineFruitShop.API.Controllers
             var order = new Order
             {
                 UserId = request.UserId,
+                ShippingName = request.ShippingName.Trim(),
+                ShippingEmail = request.ShippingEmail.Trim(),
+                ShippingMobileNumber = request.ShippingMobileNumber.Trim(),
                 ShippingAddress = request.ShippingAddress,
                 ShippingMethod = request.ShippingMethod,
                 PaymentMethod = request.PaymentMethod,
@@ -133,6 +138,7 @@ namespace OnlineFruitShop.API.Controllers
                     <p><strong>Shipping method:</strong> {order.ShippingMethod}</p>
                     <p><strong>Tracking number:</strong> {order.TrackingNumber}</p>
                     <p><strong>Tracking status:</strong> {order.TrackingStatus}</p>
+                    <p><strong>Shipping name:</strong> {order.ShippingName}</p>
                     <p><strong>Shipping address:</strong> {order.ShippingAddress}</p>
                     {orderItemsHtml}
                     <p><strong>Total:</strong> ₹{order.Total:N2}</p>
@@ -143,7 +149,9 @@ namespace OnlineFruitShop.API.Controllers
                 var adminBody = $@"
                     <h2>New COD order received</h2>
                     <p>Order <strong>#{order.Id}</strong> has been placed with Cash on Delivery.</p>
-                    <p><strong>User email:</strong> {request.ShippingEmail}</p>
+                    <p><strong>Customer:</strong> {order.ShippingName}</p>
+                    <p><strong>Shipping email:</strong> {order.ShippingEmail}</p>
+                    <p><strong>Mobile number:</strong> {order.ShippingMobileNumber}</p>
                     <p><strong>Shipping address:</strong> {order.ShippingAddress}</p>
                     <p><strong>Shipping method:</strong> {order.ShippingMethod}</p>
                     <p><strong>Total:</strong> ₹{order.Total:N2}</p>
@@ -151,11 +159,11 @@ namespace OnlineFruitShop.API.Controllers
                 ";
 
                 var emailWarning = string.Empty;
-                if (_emailService.IsConfigured && !string.IsNullOrEmpty(request.ShippingEmail) && !string.IsNullOrEmpty(_emailSettings.AdminEmail))
+                if (_emailService.IsConfigured && !string.IsNullOrEmpty(order.ShippingEmail) && !string.IsNullOrEmpty(_emailSettings.AdminEmail))
                 {
                     try
                     {
-                        await _emailService.SendEmailAsync(request.ShippingEmail, $"Your FruitShop order #{order.Id} is confirmed", userBody);
+                        await _emailService.SendEmailAsync(order.ShippingEmail, $"Your FruitShop order #{order.Id} is confirmed", userBody);
                         await _emailService.SendEmailAsync(_emailSettings.AdminEmail, $"New COD order #{order.Id} received", adminBody);
                     }
                     catch (Exception ex)
@@ -217,17 +225,23 @@ namespace OnlineFruitShop.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetOrders()
         {
             var orders = await _context.Orders
                 .Include(o => o.User)
+                .Include(o => o.DeliveryPartner)
                 .ToListAsync();
 
             var data = orders.Select(order => new
             {
                 order.Id,
                 order.UserId,
-                CustomerEmail = order.User?.Email ?? string.Empty,
+                CustomerName = string.IsNullOrWhiteSpace(order.ShippingName) ? order.User?.Name ?? string.Empty : order.ShippingName,
+                CustomerEmail = string.IsNullOrWhiteSpace(order.ShippingEmail) ? order.User?.Email ?? string.Empty : order.ShippingEmail,
+                order.ShippingMobileNumber,
+                order.DeliveryPartnerUserId,
+                DeliveryPartnerName = order.DeliveryPartner?.Name,
                 order.ShippingAddress,
                 order.ShippingMethod,
                 order.PaymentMethod,
@@ -251,6 +265,7 @@ namespace OnlineFruitShop.API.Controllers
         }
 
         [HttpPost("confirm/{orderId:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ConfirmOrder(int orderId)
         {
             var order = await _orderRepo.GetByIdAsync(orderId);
@@ -271,12 +286,16 @@ namespace OnlineFruitShop.API.Controllers
 
             var customer = await _userRepo.GetByIdAsync(order.UserId);
             var invoice = (await _invoiceRepo.FindAsync(i => i.OrderId == order.Id)).FirstOrDefault();
-            var customerEmail = customer?.Email ?? invoice?.CustomerEmail;
+            var customerEmail = !string.IsNullOrWhiteSpace(order.ShippingEmail)
+                ? order.ShippingEmail
+                : !string.IsNullOrWhiteSpace(invoice?.CustomerEmail) ? invoice.CustomerEmail : customer?.Email;
+            var customerName = string.IsNullOrWhiteSpace(order.ShippingName) ? customer?.Name ?? "Customer" : order.ShippingName;
 
             if (!string.IsNullOrEmpty(customerEmail) && _emailService.IsConfigured)
             {
                 var body = $@"
                     <h2>Your order is out for delivery</h2>
+                    <p>Hello {customerName},</p>
                     <p>Your order <strong>#{order.Id}</strong> is now out for delivery.</p>
                     <p><strong>Tracking number:</strong> {order.TrackingNumber}</p>
                     <p><strong>Shipping method:</strong> {order.ShippingMethod}</p>
@@ -300,6 +319,7 @@ namespace OnlineFruitShop.API.Controllers
         }
 
         [HttpPost("verify-delivery-otp/{orderId:int}")]
+        [Authorize(Roles = "DeliveryPartner")]
         public async Task<IActionResult> VerifyDeliveryOTP(int orderId, [FromBody] OTPVerificationRequest request)
         {
             var order = await _context.Orders
@@ -310,6 +330,11 @@ namespace OnlineFruitShop.API.Controllers
 
             if (order == null)
                 return NotFound(new ApiResponse<string> { Success = false, Message = "Order not found." });
+
+            if (order.DeliveryPartnerUserId != GetCurrentUserId())
+            {
+                return Forbid();
+            }
 
             if (string.IsNullOrEmpty(request.Otp))
             {
@@ -337,9 +362,12 @@ namespace OnlineFruitShop.API.Controllers
             _orderRepo.Update(order);
             await _orderRepo.SaveChangesAsync();
 
-            var customer = await _userRepo.GetByIdAsync(order.UserId);
+            var customer = order.User;
             var invoice = (await _invoiceRepo.FindAsync(i => i.OrderId == order.Id)).FirstOrDefault();
-            var customerEmail = customer?.Email ?? invoice?.CustomerEmail;
+            var customerEmail = !string.IsNullOrWhiteSpace(order.ShippingEmail)
+                ? order.ShippingEmail
+                : !string.IsNullOrWhiteSpace(invoice?.CustomerEmail) ? invoice.CustomerEmail : customer?.Email;
+            var customerName = string.IsNullOrWhiteSpace(order.ShippingName) ? customer?.Name ?? "Customer" : order.ShippingName;
 
             if (!string.IsNullOrEmpty(customerEmail) && _emailService.IsConfigured)
             {
@@ -355,7 +383,6 @@ namespace OnlineFruitShop.API.Controllers
                 try
                 {
                     // Generate delivery receipt PDF
-                    var customerName = customer?.Name ?? "Customer";
                     var pdfData = _deliveryReceiptService.GenerateDeliveryReceipt(order, customerName);
                     
                     // Send email with PDF attachment
@@ -377,11 +404,18 @@ namespace OnlineFruitShop.API.Controllers
         }
 
         [HttpGet("delivery-orders")]
+        [Authorize(Roles = "DeliveryPartner")]
         public async Task<IActionResult> GetDeliveryOrders()
         {
+            var deliveryPartnerId = GetCurrentUserId();
+            if (deliveryPartnerId == null)
+                return Unauthorized(new ApiResponse<string> { Success = false, Message = "Unable to identify the delivery partner." });
+
             var orders = await _context.Orders
-                .Where(o => o.Status == "Out for Delivery")
+                .Where(o => o.Status == "Out for Delivery" &&
+                    (o.DeliveryPartnerUserId == null || o.DeliveryPartnerUserId == deliveryPartnerId))
                 .Include(o => o.User)
+                .Include(o => o.DeliveryPartner)
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Fruit)
                 .ToListAsync();
@@ -390,8 +424,12 @@ namespace OnlineFruitShop.API.Controllers
             {
                 order.Id,
                 order.UserId,
-                CustomerName = order.User?.Name ?? string.Empty,
-                CustomerEmail = order.User?.Email ?? string.Empty,
+                CustomerName = string.IsNullOrWhiteSpace(order.ShippingName) ? order.User?.Name ?? string.Empty : order.ShippingName,
+                CustomerEmail = string.IsNullOrWhiteSpace(order.ShippingEmail) ? order.User?.Email ?? string.Empty : order.ShippingEmail,
+                order.DeliveryPartnerUserId,
+                DeliveryPartnerName = order.DeliveryPartner?.Name,
+                IsAssignedToCurrentPartner = order.DeliveryPartnerUserId == deliveryPartnerId,
+                order.ShippingMobileNumber,
                 order.ShippingAddress,
                 order.ShippingMethod,
                 order.PaymentMethod,
@@ -413,6 +451,49 @@ namespace OnlineFruitShop.API.Controllers
             }).OrderByDescending(o => o.CreatedAt);
 
             return Ok(new ApiResponse<object> { Success = true, Message = "Delivery orders retrieved.", Data = data });
+        }
+
+        [HttpPost("{orderId:int}/claim-delivery")]
+        [Authorize(Roles = "DeliveryPartner")]
+        public async Task<IActionResult> ClaimDeliveryOrder(int orderId)
+        {
+            var deliveryPartnerId = GetCurrentUserId();
+            if (deliveryPartnerId == null)
+                return Unauthorized(new ApiResponse<string> { Success = false, Message = "Unable to identify the delivery partner." });
+
+            var updatedRows = await _context.Orders
+                .Where(o => o.Id == orderId &&
+                    o.Status == "Out for Delivery" &&
+                    o.DeliveryPartnerUserId == null)
+                .ExecuteUpdateAsync(update => update
+                    .SetProperty(o => o.DeliveryPartnerUserId, deliveryPartnerId));
+
+            if (updatedRows == 0)
+            {
+                var existing = await _context.Orders
+                    .Where(o => o.Id == orderId)
+                    .Select(o => new { o.Status, o.DeliveryPartnerUserId })
+                    .FirstOrDefaultAsync();
+
+                if (existing == null)
+                    return NotFound(new ApiResponse<string> { Success = false, Message = "Order not found." });
+
+                if (existing.Status == "Out for Delivery" && existing.DeliveryPartnerUserId == deliveryPartnerId)
+                    return Ok(new ApiResponse<string> { Success = true, Message = "This delivery is already assigned to you." });
+
+                var message = existing.Status != "Out for Delivery"
+                    ? "This order is not available for delivery."
+                    : "Another delivery partner has already claimed this order.";
+                return Conflict(new ApiResponse<string> { Success = false, Message = message });
+            }
+
+            return Ok(new ApiResponse<string> { Success = true, Message = "You claimed this delivery." });
+        }
+
+        private int? GetCurrentUserId()
+        {
+            var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+            return int.TryParse(id, out var userId) ? userId : null;
         }
     }
 }

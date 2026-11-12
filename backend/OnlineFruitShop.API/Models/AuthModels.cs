@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace OnlineFruitShop.API.Models
 {
     public class LoginRequest
@@ -35,8 +37,13 @@ namespace OnlineFruitShop.API.Models
     public class CheckoutRequest
     {
         public int UserId { get; set; }
-        public string ShippingAddress { get; set; } = string.Empty;
+        [Required, MaxLength(128)]
+        public string ShippingName { get; set; } = string.Empty;
+        [Required, EmailAddress, MaxLength(254)]
         public string ShippingEmail { get; set; } = string.Empty;
+        [Required, MaxLength(32)]
+        public string ShippingMobileNumber { get; set; } = string.Empty;
+        public string ShippingAddress { get; set; } = string.Empty;
         public string ShippingMethod { get; set; } = "Standard";
         public string PaymentMethod { get; set; } = "card";
         public decimal Tax { get; set; }

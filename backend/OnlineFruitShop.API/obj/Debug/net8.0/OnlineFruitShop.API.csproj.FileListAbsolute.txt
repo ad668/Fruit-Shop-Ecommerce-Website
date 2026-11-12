@@ -300,3 +300,4 @@ C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.API\obj\Debug\net8.0
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.API\obj\Debug\net8.0\ref\OnlineFruitShop.API.dll
 C:\Users\HP\OnlineFruitShop\backend\OnlineFruitShop.API\bin\Debug\net8.0\BouncyCastle.Crypto.dll
 C:\Users\HP\OnlineFruitShop\backend\OnlineFruitShop.API\bin\Debug\net8.0\itextsharp.dll
+C:\Users\HP\OnlineFruitShop\backend\OnlineFruitShop.API\obj\Debug\net8.0\OnlineFruitShop.API.sourcelink.json
