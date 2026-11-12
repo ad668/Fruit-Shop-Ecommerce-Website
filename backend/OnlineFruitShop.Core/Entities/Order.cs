@@ -7,6 +7,14 @@ namespace OnlineFruitShop.Core.Entities
         public int Id { get; set; }
         public int UserId { get; set; }
         public User? User { get; set; }
+        public int? DeliveryPartnerUserId { get; set; }
+        public User? DeliveryPartner { get; set; }
+        [Required, MaxLength(128)]
+        public string ShippingName { get; set; } = string.Empty;
+        [Required, EmailAddress, MaxLength(254)]
+        public string ShippingEmail { get; set; } = string.Empty;
+        [Required, MaxLength(32)]
+        public string ShippingMobileNumber { get; set; } = string.Empty;
         [Required, MaxLength(256)]
         public string ShippingAddress { get; set; } = string.Empty;
         [Required, MaxLength(100)]

@@ -20,3 +20,4 @@ C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Core\obj\Debug\net8.
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Core\obj\Debug\net8.0\refint\OnlineFruitShop.Core.dll
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Core\obj\Debug\net8.0\OnlineFruitShop.Core.pdb
 C:\Users\HP\Project\OnlineFruitShop\backend\OnlineFruitShop.Core\obj\Debug\net8.0\ref\OnlineFruitShop.Core.dll
+C:\Users\HP\OnlineFruitShop\backend\OnlineFruitShop.Core\obj\Debug\net8.0\OnlineFruitShop.Core.sourcelink.json
